@@ -1,0 +1,16 @@
+backend/.env
+frontend/.env
+
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+
+raw_photos/
+node_modules/
+
+.DS_Store
+Thumbs.db
+
+backend/test.txt
+backend/test_r2.py
