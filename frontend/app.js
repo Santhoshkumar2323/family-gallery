@@ -1,4 +1,4 @@
-const API_BASE = "https://onrender.com";
+const API_BASE = "https://family-gallery-tiok.onrender.com";
 
 async function apiFetch(path, options = {}) {
   const token = localStorage.getItem("gallery_token");
