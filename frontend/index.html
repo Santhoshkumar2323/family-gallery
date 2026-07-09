@@ -13,6 +13,7 @@
       <h1>Welcome, Family</h1>
       <p>Enter the PIN to view the engagement photos</p>
       <input type="text" id="pinInput" class="pin-input" placeholder="Enter PIN" maxlength="12"
+        autocomplete="off" name="gallery-pin"
         onkeydown="if(event.key==='Enter') submitPin()">
       <button class="pin-btn" onclick="submitPin()">Unlock Gallery</button>
       <div class="pin-error" id="pinError"></div>

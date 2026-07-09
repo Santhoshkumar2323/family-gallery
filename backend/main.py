@@ -39,7 +39,8 @@ def pin_check(payload: PinRequest, response: Response):
         key=COOKIE_NAME,
         value=token,
         httponly=True,
-        samesite="lax",
+        samesite="none",
+        secure=True,
         max_age=60 * 60 * 24 * 7,
     )
     return {"success": True}
