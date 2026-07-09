@@ -1,12 +1,17 @@
-const API_BASE = "https://family-gallery-tiok.onrender.com";
+const API_BASE = "https://onrender.com";
 
 async function apiFetch(path, options = {}) {
+  const token = localStorage.getItem("gallery_token");
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
-    credentials: "include",
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
   });
   if (res.status === 401) {
+    localStorage.removeItem("gallery_token");
     window.location.href = "index.html";
     return null;
   }
@@ -22,12 +27,13 @@ async function submitPin() {
 
   const res = await fetch(`${API_BASE}/api/pin-check`, {
     method: "POST",
-    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ pin }),
   });
 
   if (res.ok) {
+    const data = await res.json();
+    localStorage.setItem("gallery_token", data.token);
     window.location.href = "gallery.html";
   } else {
     errorEl.textContent = "Incorrect PIN — please try again.";
@@ -52,7 +58,7 @@ async function loadAlbums() {
   `).join("");
 }
 
-let currentPhotoList = [];
+let currentPhotos = [];
 let currentPhotoIndex = 0;
 
 async function loadPhotos(albumId, albumName) {
@@ -62,7 +68,7 @@ async function loadPhotos(albumId, albumName) {
   if (!res) return;
   const photos = await res.json();
 
-  currentPhotoList = photos.map(p => p.id);
+  currentPhotos = photos;
 
   grid.innerHTML = photos.map((p, index) => `
     <div class="photo-thumb" onclick="openLightbox(${index})">
@@ -71,27 +77,30 @@ async function loadPhotos(albumId, albumName) {
   `).join("");
 }
 
-async function openLightbox(index) {
+function openLightbox(index) {
   currentPhotoIndex = index;
-  const photoId = currentPhotoList[index];
-  const res = await apiFetch(`/api/photos/${photoId}`);
-  if (!res) return;
-  const data = await res.json();
+  const photo = currentPhotos[index];
 
-  document.getElementById("lightboxImg").src = data.web_url;
+  document.getElementById("lightboxImg").src = photo.web_url;
   document.getElementById("lightbox").classList.add("open");
-  document.getElementById("downloadBtn").onclick = () => downloadPhoto(data.download_url);
+  document.getElementById("downloadBtn").onclick = () => downloadPhoto(photo.download_url);
+
+  // Background log event for tracking views
+  apiFetch("/api/events/log", {
+    method: "POST",
+    body: JSON.stringify({ photo_id: photo.id, type: "view" }),
+  });
 
   updateNavButtons();
 }
 
 function updateNavButtons() {
   document.getElementById("prevBtn").style.visibility = currentPhotoIndex > 0 ? "visible" : "hidden";
-  document.getElementById("nextBtn").style.visibility = currentPhotoIndex < currentPhotoList.length - 1 ? "visible" : "hidden";
+  document.getElementById("nextBtn").style.visibility = currentPhotoIndex < currentPhotos.length - 1 ? "visible" : "hidden";
 }
 
 function nextPhoto() {
-  if (currentPhotoIndex < currentPhotoList.length - 1) {
+  if (currentPhotoIndex < currentPhotos.length - 1) {
     openLightbox(currentPhotoIndex + 1);
   }
 }
@@ -114,7 +123,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeLightbox();
 });
 
-// swipe support
+// Swipe support
 let touchStartX = 0;
 document.addEventListener("touchstart", (e) => {
   touchStartX = e.changedTouches[0].screenX;
@@ -131,23 +140,31 @@ document.addEventListener("touchend", (e) => {
 });
 
 async function downloadPhoto(url) {
-  const photoId = currentPhotoList[currentPhotoIndex];
-  await apiFetch("/api/events/log", {
+  const photo = currentPhotos[currentPhotoIndex];
+  const btn = document.getElementById("downloadBtn");
+  btn.textContent = "Downloading...";
+
+  apiFetch("/api/events/log", {
     method: "POST",
-    body: JSON.stringify({ photo_id: photoId, type: "download" }),
+    body: JSON.stringify({ photo_id: photo.id, type: "download" }),
   });
 
-  const response = await fetch(url);
-  const blob = await response.blob();
-  const blobUrl = window.URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = blobUrl;
-  a.download = "photo.jpg";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  window.URL.revokeObjectURL(blobUrl);
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = photo.filename || "photo.jpg";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error("Download failed:", error);
+  } finally {
+    btn.textContent = "⬇ Download Original";
+  }
 }
 
 // ---------- DASHBOARD PAGE ----------

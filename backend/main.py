@@ -24,26 +24,18 @@ COOKIE_NAME = "family_gallery_session"
 
 
 def require_auth(request: Request):
-    token = request.cookies.get(COOKIE_NAME)
+    auth_header = request.headers.get("authorization", "")
+    token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else None
     if not token or not verify_session_token(token):
         raise HTTPException(status_code=401, detail="Not authorized")
     return True
 
-
 @app.post("/api/pin-check")
-def pin_check(payload: PinRequest, response: Response):
+def pin_check(payload: PinRequest):
     if not check_pin(payload.pin):
         raise HTTPException(status_code=401, detail="Incorrect PIN")
     token = create_session_token()
-    response.set_cookie(
-        key=COOKIE_NAME,
-        value=token,
-        httponly=True,
-        samesite="none",
-        secure=True,
-        max_age=60 * 60 * 24 * 7,
-    )
-    return {"success": True}
+    return {"success": True, "token": token}
 
 
 @app.get("/api/albums", response_model=list[AlbumOut])
@@ -65,6 +57,8 @@ def list_photos(album_id: int, request: Request, db: Session = Depends(get_db), 
             "id": p.id,
             "filename": p.filename,
             "thumb_url": get_signed_url(p.r2_key_thumb, expiry=3600),
+            "web_url": get_signed_url(p.r2_key_web, expiry=3600),
+            "download_url": get_signed_url(p.r2_key_original, expiry=3600),
         })
     return result
 

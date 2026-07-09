@@ -36,7 +36,7 @@ class PhotoDetailOut(BaseModel):
 
 class EventLog(BaseModel):
     photo_id: int
-    type: str  # "view" or "download"
+    type: str  
 
 
 class DashboardStats(BaseModel):
@@ -46,3 +46,13 @@ class DashboardStats(BaseModel):
     most_popular_album: dict | None
     timeline: list
     recent_activity: list
+
+class PhotoOut(BaseModel):
+    id: int
+    filename: str
+    thumb_url: str
+    web_url: str
+    download_url: str
+
+    class Config:
+        from_attributes = True    
