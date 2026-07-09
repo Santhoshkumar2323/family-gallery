@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="brand"><span class="dot"></span> Family Gallery</div>
+    <div class="nav-links">
+      <a href="gallery.html">Gallery</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 class="page-title">Gallery Activity</h1>
+    <p class="page-subtitle">See how the family is enjoying the photos</p>
+
+    <div class="highlight-card" id="highlightCard">
+      <div class="loading">Loading…</div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+      <div class="loading">Loading stats…</div>
+    </div>
+
+    <h2 class="section-title">Activity — Last 14 Days</h2>
+    <div class="timeline-bar-row" id="timelineBars"></div>
+
+    <h2 class="section-title">Recent Activity</h2>
+    <div class="activity-list" id="activityList"></div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>loadDashboard();</script>
+</body>
+</html>

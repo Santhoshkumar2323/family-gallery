@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+pymysql
+python-dotenv
+boto3
+pillow
+python-multipart
+itsdangerous

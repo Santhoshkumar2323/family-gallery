@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Gallery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="brand"><span class="dot"></span> Family Gallery</div>
+    <div class="nav-links">
+      <a href="gallery.html" class="active">Gallery</a>
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div id="albumsView">
+      <h1 class="page-title">Our Albums</h1>
+      <p class="page-subtitle">Every moment, beautifully kept</p>
+      <div class="album-grid" id="albumGrid">
+        <div class="loading">Loading albums…</div>
+      </div>
+    </div>
+
+    <div id="photosView" style="display:none;">
+      <a href="gallery.html" class="back-link">← Back to albums</a>
+      <h1 class="page-title" id="albumTitle"></h1>
+      <div class="photo-grid" id="photoGrid">
+        <div class="loading">Loading photos…</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close-x" onclick="closeLightbox()">&times;</span>
+    <button class="lightbox-nav-btn" id="prevBtn" onclick="prevPhoto()">‹</button>
+    <img id="lightboxImg" src="" alt="">
+    <button class="lightbox-nav-btn" id="nextBtn" onclick="nextPhoto()" style="right:20px; left:auto;">›</button>
+    <div class="lightbox-controls">
+      <button class="lightbox-btn download" id="downloadBtn">⬇ Download Original</button>
+      <button class="lightbox-btn close" onclick="closeLightbox()">Close</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const albumId = params.get("album");
+    const albumName = params.get("name");
+
+    if (albumId) {
+      document.getElementById("albumsView").style.display = "none";
+      document.getElementById("photosView").style.display = "block";
+      loadPhotos(albumId, albumName);
+    } else {
+      loadAlbums();
+    }
+  </script>
+</body>
+</html>

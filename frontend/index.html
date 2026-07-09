@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Gallery — Enter PIN</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="pin-screen">
+    <div class="pin-card">
+      <div class="ornament">✦</div>
+      <h1>Welcome, Family</h1>
+      <p>Enter the PIN to view the engagement photos</p>
+      <input type="text" id="pinInput" class="pin-input" placeholder="Enter PIN" maxlength="12"
+        onkeydown="if(event.key==='Enter') submitPin()">
+      <button class="pin-btn" onclick="submitPin()">Unlock Gallery</button>
+      <div class="pin-error" id="pinError"></div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
