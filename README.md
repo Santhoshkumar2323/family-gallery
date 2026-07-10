@@ -103,22 +103,39 @@ uvicorn main:app --reload
 # Project Structure
 
 family-gallery/
+
 ├── backend/
+
 │   ├── main.py            # API routes
+
 │   ├── database.py        # DB connection setup
+
 │   ├── models.py          # Album, Photo, Event tables
+
 │   ├── schemas.py         # Request/response validation
+
 │   ├── auth.py             # PIN check + session token logic
+
 │   ├── storage.py         # R2 upload + signed URL generation
+
 │   ├── upload_script.py   # Batch photo upload + processing
+
 │   ├── fix_orientation.py # EXIF orientation correction 
+
 │   └── requirements.txt
+
 ├── frontend/
+
 │   ├── index.html         # PIN entry
+
 │   ├── gallery.html       # Album list + photo grid
+
 │   ├── dashboard.html     # Analytics dashboard
+
 │   ├── app.js
+
 │   └── style.css
+
 └── docker-compose.yml      # Local MySQL for development
 
 
