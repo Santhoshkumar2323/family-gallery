@@ -22,21 +22,33 @@ async function apiFetch(path, options = {}) {
 async function submitPin() {
   const pin = document.getElementById("pinInput").value.trim();
   const errorEl = document.getElementById("pinError");
+  const btn = document.querySelector(".pin-btn");
   errorEl.textContent = "";
   if (!pin) return;
 
-  const res = await fetch(`${API_BASE}/api/pin-check`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pin }),
-  });
+  btn.disabled = true;
+  btn.textContent = "Waking up gallery… please wait";
 
-  if (res.ok) {
-    const data = await res.json();
-    localStorage.setItem("gallery_token", data.token);
-    window.location.href = "gallery.html";
-  } else {
-    errorEl.textContent = "Incorrect PIN — please try again.";
+  try {
+    const res = await fetch(`${API_BASE}/api/pin-check`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem("gallery_token", data.token);
+      window.location.href = "gallery.html";
+    } else {
+      errorEl.textContent = "Incorrect PIN — please try again.";
+      btn.disabled = false;
+      btn.textContent = "Unlock Gallery";
+    }
+  } catch (err) {
+    errorEl.textContent = "Connection issue — please wait a moment and try again.";
+    btn.disabled = false;
+    btn.textContent = "Unlock Gallery";
   }
 }
 
@@ -61,6 +73,12 @@ async function loadAlbums() {
 let currentPhotos = [];
 let currentPhotoIndex = 0;
 
+function preloadImage(url) {
+  if (!url) return;
+  const img = new Image();
+  img.src = url;
+}
+
 async function loadPhotos(albumId, albumName) {
   document.getElementById("albumTitle").textContent = albumName;
   const grid = document.getElementById("photoGrid");
@@ -69,6 +87,7 @@ async function loadPhotos(albumId, albumName) {
   const photos = await res.json();
 
   currentPhotos = photos;
+  if (photos[0]) preloadImage(photos[0].web_url);
 
   grid.innerHTML = photos.map((p, index) => `
     <div class="photo-thumb" onclick="openLightbox(${index})">
@@ -85,11 +104,13 @@ function openLightbox(index) {
   document.getElementById("lightbox").classList.add("open");
   document.getElementById("downloadBtn").onclick = () => downloadPhoto(photo.download_url);
 
-  // Background log event for tracking views
   apiFetch("/api/events/log", {
     method: "POST",
     body: JSON.stringify({ photo_id: photo.id, type: "view" }),
   });
+
+  if (currentPhotos[index + 1]) preloadImage(currentPhotos[index + 1].web_url);
+  if (currentPhotos[index - 1]) preloadImage(currentPhotos[index - 1].web_url);
 
   updateNavButtons();
 }
@@ -142,7 +163,9 @@ document.addEventListener("touchend", (e) => {
 async function downloadPhoto(url) {
   const photo = currentPhotos[currentPhotoIndex];
   const btn = document.getElementById("downloadBtn");
-  btn.textContent = "Downloading...";
+  const originalText = btn.textContent;
+  btn.textContent = "Downloading… (full quality, may take a moment)";
+  btn.disabled = true;
 
   apiFetch("/api/events/log", {
     method: "POST",
@@ -162,8 +185,10 @@ async function downloadPhoto(url) {
     window.URL.revokeObjectURL(blobUrl);
   } catch (error) {
     console.error("Download failed:", error);
+    alert("Download failed — please try again.");
   } finally {
-    btn.textContent = "⬇ Download Original";
+    btn.textContent = originalText;
+    btn.disabled = false;
   }
 }
 
@@ -184,7 +209,7 @@ async function loadDashboard() {
     highlightEl.innerHTML = `
       <img src="${d.most_downloaded_photo.thumb_url}" alt="">
       <div>
-        <h3>🔥 Most Downloaded</h3>
+        <h3>⭐  Most Downloaded</h3>
         <p>${d.most_downloaded_photo.filename} — downloaded ${d.most_downloaded_photo.count} times</p>
       </div>
     `;
