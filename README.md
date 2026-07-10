@@ -106,37 +106,37 @@ family-gallery/
 
 ├── backend/
 
-│   ├── main.py            # API routes
+│   ├── main.py               # API routes
 
-│   ├── database.py        # DB connection setup
+│   ├── database.py           # DB connection setup
 
-│   ├── models.py          # Album, Photo, Event tables
+│   ├── models.py             # Album, Photo, Event tables
 
-│   ├── schemas.py         # Request/response validation
+│   ├── schemas.py            # Request/response validation
 
-│   ├── auth.py             # PIN check + session token logic
+│   ├── auth.py               # PIN check + session token logic
 
-│   ├── storage.py         # R2 upload + signed URL generation
+│   ├── storage.py            # R2 upload + signed URL generation
 
-│   ├── upload_script.py   # Batch photo upload + processing
+│   ├── upload_script.py      # Batch photo upload + processing
 
-│   ├── fix_orientation.py # EXIF orientation correction 
+│   ├── fix_orientation.py    # EXIF orientation correction 
 
 │   └── requirements.txt
 
 ├── frontend/
 
-│   ├── index.html         # PIN entry
+│   ├── index.html            # PIN entry
 
-│   ├── gallery.html       # Album list + photo grid
+│   ├── gallery.html          # Album list + photo grid
 
-│   ├── dashboard.html     # Analytics dashboard
+│   ├── dashboard.html        # Analytics dashboard
 
 │   ├── app.js
 
 │   └── style.css
 
-└── docker-compose.yml      # Local MySQL for development
+└── docker-compose.yml        # Local MySQL for development
 
 
 # Notable Problems Solved while building
