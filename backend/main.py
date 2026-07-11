@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from datetime import datetime, timedelta
 
 from database import get_db
@@ -165,7 +165,7 @@ def dashboard_stats(request: Request, db: Session = Depends(get_db), _=Depends(r
         "recent_activity": recent_activity,
     }
 
-
 @app.get("/api/health")
-def health():
+def health(db: Session = Depends(get_db)):
+    db.execute(text("SELECT 1"))
     return {"status": "ok"}
